@@ -1,0 +1,210 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Bouncing Ball</title>
+    <STYLE>
+        canvas{
+            border: 1px solid #000000;
+        }
+    </STYLE>
+</head>
+<body>
+<canvas height="500" id="myCanvas" width="500"></canvas>
+<button onclick="draw()">Play</button>
+<button onclick="reloadpage()">Play again</button>
+<h1 id="score" > Score : </h1>
+<script>
+    // function Rectangle (x,y,width,height,color) {
+    //     this.x = x;
+    //     this.y = y;
+    //     this.width = width;
+    //     this.height = height;
+    //     this.color = color;
+    //     this.render = function (canvas) {
+    //         canvas.beginPath();
+    //         canvas.fillStyle = this.color;
+    //         canvas.fillRect(this.x, this.y, this.width, this.height);
+    //     }
+    // }
+    // let rectangle=new Rectangle(300,400,100,20,"black");
+    // rectangle.render(document.getElementById("c").getContext("2d"));
+    // function Circle(x, y, radius){
+    //     this.x = x;
+    //     this.y = y;
+    //     this.radius = radius;
+    // }
+    //
+    // function getRandomHex(){
+    //     return Math.floor(Math.random()*100);
+    // }
+    //
+    // function getRandomColor(){
+    //     let red = getRandomHex();
+    //     let green = getRandomHex();
+    //     let blue = getRandomHex();
+    //     return "rgb(" + red + "," + blue + "," + green +")";
+    // }
+    //
+    // function createCircle(){
+    //     let ctx = document.getElementById("c").getContext("2d");
+    //     let radius = 10;
+    //     let color = getRandomColor();
+    //     let x = 50;
+    //     let y = 50;
+    //     let circle= new Circle(x, y, radius);
+    //     ctx.beginPath();
+    //     ctx.arc(circle.x, circle.y, circle.radius, 0, 2 * Math.PI);
+    //     ctx.fillStyle = color;
+    //     ctx.fill();
+    // }
+    // createCircle();
+    // function left() {
+    //     let element =Rectangle;
+    //     element.style.left = parseInt(element.style.left) - 5 + 'px';
+    // }
+    // function right() {
+    //     let element =Rectangle;
+    //     element.style.left = parseInt(element.style.left) + 5 + 'px';
+    // }
+    // function moveSelection(evt) {
+    //     switch (evt.keyCode) {
+    //         case 37:
+    //             left();
+    //             break;
+    //         case 39:
+    //             right();
+    //             break;
+    //     }
+    // }
+    // function docReady() {
+    //     window.addEventListener('keydown', moveSelection);
+    // }
+    // let FPS=30;
+    // let ball_size=30;
+    // let ball_x,ball_y;
+    // let x_v,y_v;
+    // let canvas,context;
+    // canvas=document.getElementById('myCanvas');
+    // context=canvas.getContext('2d');
+    // setInterval(update, 1000/FPS);
+    // ball_x=canvas.width / 2;
+    // ball_y=canvas.height / 2;
+    // x_v=Math.floor(Math.random()*75 + 25) / FPS;
+    // y_v=Math.floor(Math.random()*75 + 25) / FPS;
+    // function update() {
+    //     ball_x+=x_v;
+    //     ball_y+=y_v;
+    //
+    //
+    //
+    //     context.fillStyle="black";
+    //     context.fillRect(0,0,canvas.width,canvas.height);
+    //     context.fillStyle="yellow";
+    //     context.fillRect(ball_x-ball_size/2,ball_y-ball_size/2,ball_size,ball_size);
+    // }
+        var canvas = document.getElementById('myCanvas');
+        var context = canvas.getContext('2d');
+        var ball={
+            x:20,
+            y:20,
+            dx:3,                                   //dx,dy : biến thay đổi tọa độ của tâm đường tròn
+            dy:2,
+            radius:15
+        };
+        var racket={
+            width:80,
+            height:15,
+            x:0,
+            y:canvas.height-10,
+            speed:20
+        };
+        var gameOver=false;
+        var score=0;
+    function drawBall() {
+        context.beginPath();
+        context.arc(ball.x, ball.y, ball.radius, 0, 2 * Math.PI);
+        context.fillStyle = 'red';
+        context.fill();
+        context.closePath();
+    }
+    function drawRacket() {
+        context.beginPath();
+        context.rect(racket.x,racket.y,racket.width,racket.height);
+        context.fillStyle='black';
+        context.fill();
+        context.closePath();
+    }
+    // setInterval(function () {
+    //     context.clearRect(0,0,canvas.width,canvas.height);
+    //     drawBall();
+    //     x+=2;
+    //     y+=2;
+    // },200);
+
+    function handleBall() {
+        if (ball.x<ball.radius || ball.x>canvas.width-ball.radius){
+            ball.dx = -ball.dx;
+        }                                            //xử lí bóng chạm vào biên
+        if ( ball.y<ball.radius){
+            ball.dy = -ball.dy;
+        }
+    }
+    //xử lí khi bóng rơi xuống đáy canvas
+    function collision() {
+        if (ball.y > canvas.height - ball.radius) {
+            gameOver = true;
+        }
+    }
+    // làm cho thanh vợt không chạy ra khỏi canvas
+    function blockRacket() {
+        if (racket.x < 0) {
+            racket.x = 0;
+        } else if (racket.x > canvas.width - racket.width) {
+            racket.x = canvas.width - racket.width;
+        }
+    }
+    //bóng chạm vợt thì bật lại
+    function handleBallRacket() {
+        if (ball.x+ball.radius>=racket.x && ball.x+ball.radius<=racket.x+racket.width && ball.y+ball.radius>=canvas.height-racket.height){
+            ball.dy=-ball.dy;
+            score+=1;
+        }
+    }
+    function updateLocation() {
+        ball.x+=ball.dx;
+        ball.y+=ball.dy;
+    }
+    function move(event) {
+        switch (event.keyCode) {
+            case 37:
+            racket.x-=racket.speed;
+            break;
+            case 39:
+            racket.x+=racket.speed;
+            break;
+        }
+    }
+    document.addEventListener('keydown',move);
+    function draw() {
+        if (!gameOver) {
+            context.clearRect(0, 0, canvas.width, canvas.height);
+            drawBall();
+            drawRacket();
+            handleBall();
+            blockRacket();
+            handleBallRacket();
+            updateLocation();
+            collision();
+            requestAnimationFrame(draw);
+            document.getElementById('score').innerHTML="Score :"+score;
+        }else {
+            alert('Game Over!');
+        }
+    }
+    function reloadpage(){
+        location.reload();
+    }
+</script>
+</body>
+</html>
